@@ -288,22 +288,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (controller.articles.isEmpty) return _buildEmptyWidget();
 
                     return RefreshIndicator(
-                onRefresh: controller.refreshNews,
-                child: ListView.builder(
-                  padding: EdgeInsets.all(16),
-                  itemCount: controller.articles.length,
-                  itemBuilder: (context, index) {
-                    final article = controller.articles[index];
-                    return NewsCard(
-                      article: article,
-                      onTap: () => Get.toNamed(
-                        Routes.NEWS_DETAIL,
-                        arguments: article
+                      onRefresh: controller.refreshNews,
+                      child: ListView.builder(
+                        padding: EdgeInsets.all(16),
+                        itemCount: controller.articles.length,
+                        itemBuilder: (context, index) {
+                          final article = controller.articles[index];
+                          return NewsCard(
+                            article: article,
+                            onTap: () => Get.toNamed(
+                              Routes.NEWS_DETAIL,
+                              arguments: article,
+                            ),
+                          );
+                        },
                       ),
                     );
-                  },
-                ),
-              );
                   }),
                 ),
               ],
@@ -359,13 +359,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ⚠️ Empty & Error Widgets
-  Widget _buildEmptyWidget() => const Center(
+  Widget _buildEmptyWidget() => Center(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.newspaper, size: 64, color: Colors.grey),
-        SizedBox(height: 16),
-        Text(
+        Image.asset(
+          'assets/images/peek_no_news.png', // ubah sesuai nama file kamu
+          width: 120,
+          height: 120,
+          fit: BoxFit.contain,
+        ),
+        const SizedBox(height: 16),
+        const Text(
           'No News available',
           style: TextStyle(
             fontSize: 18,
@@ -373,8 +378,11 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.black87,
           ),
         ),
-        SizedBox(height: 8),
-        Text('Please try again later', style: TextStyle(color: Colors.grey)),
+        const SizedBox(height: 8),
+        const Text(
+          'Please try again later',
+          style: TextStyle(color: Colors.grey),
+        ),
       ],
     ),
   );
