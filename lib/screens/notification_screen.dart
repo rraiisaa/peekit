@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:peekit_app/controllers/notification_controller.dart';
-import 'package:peekit_app/components/bottom_navbar.dart';
+import 'package:peekit_app/widgets/bottom_navbar.dart';
 import 'package:peekit_app/routes/app_pages.dart';
 import 'package:peekit_app/utils/app_colors.dart';
 
@@ -17,38 +17,41 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xfff9f9f9),
-     appBar: AppBar(
-  title: Obx(() {
-    final selectedCount =
-        controller.notifications.where((n) => n.isSelected).length;
-    return Text(
-      selectedCount > 0 ? "$selectedCount selected" : "Notifications",
-      style: const TextStyle(color: Colors.black),
-    );
-  }),
-  backgroundColor: Colors.white,
-  elevation: 0,
-  leading: Obx(() {
-    final hasSelected = controller.notifications.any((n) => n.isSelected);
-    if (!hasSelected) return const SizedBox();
-    return IconButton(
-      icon: const Icon(Icons.close, color: Colors.black),
-      onPressed: () => controller.clearSelection(),
-    );
-  }),
-  actions: [
-    Obx(() {
-      final hasSelected = controller.notifications.any((n) => n.isSelected);
-      if (!hasSelected) return const SizedBox();
-      return IconButton(
-        icon: const Icon(Icons.delete_outline, color: Colors.red),
-        onPressed: () => _showDeleteConfirmDialog(context),
-      );
-    }),
-  ],
-),
+      appBar: AppBar(
+        title: Obx(() {
+          final selectedCount = controller.notifications
+              .where((n) => n.isSelected)
+              .length;
+          return Text(
+            selectedCount > 0 ? "$selectedCount selected" : "Notifications",
+            style: const TextStyle(color: Colors.black),
+          );
+        }),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: Obx(() {
+          final hasSelected = controller.notifications.any((n) => n.isSelected);
+          if (!hasSelected) return const SizedBox();
+          return IconButton(
+            icon: const Icon(Icons.close, color: Colors.black),
+            onPressed: () => controller.clearSelection(),
+          );
+        }),
+        actions: [
+          Obx(() {
+            final hasSelected = controller.notifications.any(
+              (n) => n.isSelected,
+            );
+            if (!hasSelected) return const SizedBox();
+            return IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              onPressed: () => _showDeleteConfirmDialog(context),
+            );
+          }),
+        ],
+      ),
 
-     bottomNavigationBar: BottomNavBar(
+      bottomNavigationBar: BottomNavBar(
         currentIndex: 2,
         onTap: (index) {
           switch (index) {
@@ -57,11 +60,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
               break;
             case 1:
               Navigator.pushNamed(context, Routes.NEWS_SCREEN);
-              break; 
+              break;
             case 2:
               break;
             case 3:
-              Navigator.pushNamed(context, '/profile');
+              Navigator.pushNamed(context, Routes.PROFILE_SCREEN);
               break;
           }
         },
@@ -87,7 +90,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 } else {
                   controller.markAsRead(notif.id);
                   if (notif.newsUrl != null) {
-                    Get.toNamed('/newsDetail', arguments: {'url': notif.newsUrl});
+                    Get.toNamed(
+                      '/newsDetail',
+                      arguments: {'url': notif.newsUrl},
+                    );
                   }
                 }
               },
@@ -99,8 +105,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   color: notif.isSelected
                       ? Colors.blue[700]
                       : notif.isRead
-                          ? Colors.grey[200]
-                          : Colors.blue[50],
+                      ? Colors.grey[200]
+                      : Colors.blue[50],
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
@@ -113,8 +119,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       color: notif.isSelected
                           ? Colors.white
                           : notif.isRead
-                              ? Colors.grey
-                              : AppColors.primary,
+                          ? Colors.grey
+                          : AppColors.primary,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -124,7 +130,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           Text(
                             notif.title,
                             style: TextStyle(
-                              color: notif.isSelected ? Colors.white : Colors.black,
+                              color: notif.isSelected
+                                  ? Colors.white
+                                  : Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -132,7 +140,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           Text(
                             notif.message,
                             style: TextStyle(
-                              color: notif.isSelected ? Colors.white70 : Colors.black54,
+                              color: notif.isSelected
+                                  ? Colors.white70
+                                  : Colors.black54,
                               fontSize: 13,
                             ),
                           ),
@@ -141,7 +151,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             "${notif.time.hour}:${notif.time.minute.toString().padLeft(2, '0')}",
                             style: TextStyle(
                               fontSize: 11,
-                              color: notif.isSelected ? Colors.white70 : Colors.grey,
+                              color: notif.isSelected
+                                  ? Colors.white70
+                                  : Colors.grey,
                             ),
                           ),
                         ],

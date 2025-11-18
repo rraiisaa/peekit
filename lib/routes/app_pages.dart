@@ -7,6 +7,7 @@ import 'package:peekit_app/screens/news_detail_screen.dart';
 import 'package:peekit_app/screens/news_screen.dart';
 import 'package:peekit_app/screens/notification_screen.dart';
 import 'package:peekit_app/screens/onboarding/onboarding_screen.dart';
+import 'package:peekit_app/screens/profile._screen.dart';
 import 'package:peekit_app/screens/search_screen.dart';
 import 'package:peekit_app/screens/splash_screen.dart';
 
@@ -48,6 +49,10 @@ class AppPages {
     GetPage(
       name: _Paths.NOTIFICATION_SCREEN,
       page: () => NotificationScreen(),
+    ),
+    GetPage(
+      name: _Paths.PROFILE_SCREEN,
+      page: () => ProfileScreen(),
     ),
     GetPage(
       name: _Paths.SEARCH_SCREEN,

@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:peekit_app/models/news_articles.dart';
-import 'package:peekit_app/utils/app_colors.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class NewsCard extends StatelessWidget {
@@ -12,10 +11,17 @@ class NewsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+    final theme = Theme.of(context);
+
+    final cardColor = theme.cardColor;                        // <-- AUTO light/dark
+    final textPrimary = theme.colorScheme.onSurface;          // Title
+    final textSecondary = theme.colorScheme.onSurfaceVariant; // Subtitle
+
     return Card(
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
-      shadowColor: AppColors.cardShadow,
+      color: cardColor, // HERE — following theme
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -25,97 +31,102 @@ class NewsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // image
+            
+            /// IMAGE
             if (article.urlToImage != null)
               ClipRRect(
-                borderRadius: BorderRadius.vertical(top:Radius.circular(12)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                 child: CachedNetworkImage(
                   imageUrl: article.urlToImage!,
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
+                  placeholder: (_, __) => Container(
                     height: 200,
-                    color: AppColors.divider,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                      ),
-                    ),
+                    color: theme.dividerColor,
+                    child: const Center(child: CircularProgressIndicator()),
                   ),
-                  errorWidget: (context, url, error) => Container(
+                  errorWidget: (_, __, ___) => Container(
                     height: 200,
-                    color: AppColors.divider,
-                    child: Center(
-                      child: Icon(
-                        Icons.broken_image,
-                        color: AppColors.textHint,
-                        size: 48,
-                      ),
+                    color: theme.dividerColor,
+                    child: Icon(
+                      Icons.broken_image,
+                      color: textSecondary,
+                      size: 48,
                     ),
                   ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // source news 
-                    Row(
-                      children: [
-                        if (article.source?.name != null)...[
-                          Expanded(child: Text(
+
+            /// CONTENT
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  /// SOURCE + TIME
+                  Row(
+                    children: [
+                      if (article.source?.name != null) ...[
+                        Expanded(
+                          child: Text(
                             article.source!.name!,
                             style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.primary,
+                              fontSize: 13,
                               fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.primary,
                             ),
                             overflow: TextOverflow.ellipsis,
-                          )),
-                          SizedBox(width: 8),
-                        ],
-                        // timestamp
-                        if (article.publishedAt != null)
-                          Text(
-                            timeago.format(DateTime.parse(article.publishedAt!)),
-                            style: TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 17,
-                            ),
-                          )
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                       ],
-                    ),
-                    SizedBox(height: 12),
-                    // title 
-                    if (article.title != null)
+
+                      if (article.publishedAt != null)
+                        Text(
+                          timeago.format(DateTime.parse(article.publishedAt!)),
+                          style: TextStyle(
+                            color: textSecondary,
+                            fontSize: 13,
+                          ),
+                        ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  /// TITLE
+                  if (article.title != null)
                     Text(
                       article.title!,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 17,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                        height: 1.3,
+                        color: textPrimary,
+                        height: 1.35,
                       ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 8),
-                    // description
-                    if (article.description != null)
+
+                  const SizedBox(height: 8),
+
+                  /// DESCRIPTION
+                  if (article.description != null)
                     Text(
                       article.description!,
                       style: TextStyle(
-                        fontSize: 16,
-                        color: AppColors.textSecondary,
+                        fontSize: 15,
+                        color: textSecondary,
                         height: 1.4,
                       ),
-                      maxLines: 2,
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
-                    )
-                  ],
-                ),
-              )
+                    ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

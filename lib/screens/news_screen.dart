@@ -6,7 +6,7 @@ import 'package:peekit_app/utils/app_colors.dart';
 import 'package:peekit_app/widgets/category_chip.dart';
 import 'package:peekit_app/widgets/news_card.dart';
 import 'package:peekit_app/widgets/loading_shimmer.dart';
-import 'package:peekit_app/components/bottom_navbar.dart';
+import 'package:peekit_app/widgets/bottom_navbar.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class NewsScreen extends StatefulWidget {
@@ -34,7 +34,7 @@ class _NewsScreenState extends State<NewsScreen> {
               Navigator.pushNamed(context, Routes.NOTIFICATION_SCREEN);
               break;
             case 3:
-              Navigator.pushNamed(context, '/profile');
+              Navigator.pushNamed(context, Routes.PROFILE_SCREEN);
               break;
           }
         },

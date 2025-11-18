@@ -6,7 +6,8 @@ import 'package:peekit_app/utils/app_colors.dart';
 import 'package:peekit_app/widgets/category_chip.dart';
 import 'package:peekit_app/widgets/loading_shimmer.dart';
 import 'package:peekit_app/widgets/news_card.dart';
-import 'package:peekit_app/components/bottom_navbar.dart';
+import 'package:peekit_app/widgets/bottom_navbar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -15,18 +16,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final NewsController controller = Get.find<NewsController>();
-  bool _showGreeting = false; // 👋 kontrol pop-up
+  bool _showGreeting = false;
 
   @override
   void initState() {
     super.initState();
+    _checkFirstTimeUser();
+  }
 
-    // ✅ Cek apakah baru masuk dari onboarding
-    Future.delayed(const Duration(milliseconds: 600), () {
-      setState(() {
-        _showGreeting = true;
+  Future<void> _checkFirstTimeUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasSeenGreeting = prefs.getBool('hasSeenGreeting') ?? false;
+
+    if (!hasSeenGreeting) {
+      Future.delayed(const Duration(milliseconds: 600), () {
+        setState(() => _showGreeting = true);
       });
-    });
+      await prefs.setBool('hasSeenGreeting', true);
+    }
   }
 
   @override
@@ -37,13 +44,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: const Color(0xfff9f9f9),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           bottomNavigationBar: BottomNavBar(
-            currentIndex: 0, // 0 = Home
+            currentIndex: 0,
             onTap: (index) {
               switch (index) {
                 case 0:
-                  break; // udah di Home
+                  break;
                 case 1:
                   Navigator.pushNamed(context, Routes.NEWS_SCREEN);
                   break;
@@ -51,26 +58,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.pushNamed(context, Routes.NOTIFICATION_SCREEN);
                   break;
                 case 3:
-                  Navigator.pushNamed(context, '/profile');
+                  Navigator.pushNamed(context, Routes.PROFILE_SCREEN);
                   break;
               }
             },
           ),
-
           body: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // 🔍 Search bar + filter
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Search bar
                       Expanded(
                         flex: 7,
                         child: GestureDetector(
@@ -78,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Container(
                             height: 45,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(24),
                               boxShadow: [
                                 BoxShadow(
@@ -89,15 +92,24 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                             child: Row(
-                              children: const [
-                                SizedBox(width: 16),
-                                Icon(Icons.search, color: Colors.grey),
-                                SizedBox(width: 10),
+                              children: [
+                                const SizedBox(width: 16),
+                                Icon(Icons.search,
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.color
+                                        ?.withOpacity(0.6)),
+                                const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
                                     'Search News',
                                     style: TextStyle(
-                                      color: Colors.grey,
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.color
+                                          ?.withOpacity(0.6),
                                       fontSize: 16,
                                     ),
                                   ),
@@ -107,15 +119,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                       ),
-
                       const SizedBox(width: 12),
-
-                      // Filter icon
                       Container(
                         height: 45,
                         width: 45,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
@@ -126,10 +135,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                         child: IconButton(
-                          icon: const Icon(
-                            Icons.tune_rounded,
-                            color: Colors.grey,
-                          ),
+                          icon: Icon(Icons.tune_rounded,
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.color
+                                  ?.withOpacity(0.6)),
                           onPressed: () => _showFilterBottomSheet(context),
                         ),
                       ),
@@ -138,14 +149,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 // 🔥 Hot News
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                   child: Text(
                     'Hot News',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
                     ),
                   ),
                 ),
@@ -155,15 +167,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 200,
                   child: Obx(() {
                     if (controller.isLoading) return LoadingShimmer();
-
                     final trending = controller.hotArticles;
                     if (trending.isEmpty) {
-                      return const Center(
+                      return Center(
                         child: Text(
                           "No hot news available 📰",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
+                            color:
+                                Theme.of(context).textTheme.bodyMedium?.color,
                           ),
                         ),
                       );
@@ -184,9 +197,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   arguments: article,
                                 ),
                                 child: Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                  ),
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 8),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(20),
                                     image: DecorationImage(
@@ -204,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         begin: Alignment.bottomCenter,
                                         end: Alignment.topCenter,
                                         colors: [
-                                          AppColors.primary,
+                                          AppColors.primary.withOpacity(0.8),
                                           Colors.transparent,
                                         ],
                                       ),
@@ -227,7 +239,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                           ),
                         ),
-
                         const SizedBox(height: 8),
                         Obx(() {
                           return Row(
@@ -236,15 +247,18 @@ class _HomeScreenState extends State<HomeScreen> {
                               trending.length,
                               (index) => AnimatedContainer(
                                 duration: const Duration(milliseconds: 300),
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 4,
-                                ),
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 4),
                                 width: currentPage.value == index ? 10 : 8,
                                 height: currentPage.value == index ? 10 : 8,
                                 decoration: BoxDecoration(
                                   color: currentPage.value == index
                                       ? AppColors.primary
-                                      : AppColors.textAdded,
+                                      : Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.color
+                                          ?.withOpacity(0.3),
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -255,7 +269,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }),
                 ),
-
                 const SizedBox(height: 10),
 
                 // 🧭 Category chips
@@ -277,7 +290,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
                 ),
-
                 const SizedBox(height: 8),
 
                 // 📰 News List
@@ -286,11 +298,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (controller.isLoading) return LoadingShimmer();
                     if (controller.error.isNotEmpty) return _buildErrorWidget();
                     if (controller.articles.isEmpty) return _buildEmptyWidget();
-
                     return RefreshIndicator(
                       onRefresh: controller.refreshNews,
                       child: ListView.builder(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         itemCount: controller.articles.length,
                         itemBuilder: (context, index) {
                           final article = controller.articles[index];
@@ -311,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
 
-        // 🟦 POP-UP GREETING (klik di mana aja untuk tutup)
+        // 🎉 Greeting popup
         if (_showGreeting)
           GestureDetector(
             onTap: () => setState(() => _showGreeting = false),
@@ -322,31 +333,35 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: 280,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // 🖼️ Gambar pop-up (export versi SEKOTAK BIRU)
-                    Image.asset(
-                      'assets/images/greeting_popup.png',
-                      height: 120,
-                    ),
+                    Image.asset('assets/images/greeting_popup.png',
+                        height: 120),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'Welcome to Peekit! 👋',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       "You're about to see the world — one peek at a time.\nStay curious, scroll smart, and let AI do summarized for you.",
-                      style: TextStyle(color: Colors.black54, fontSize: 14),
+                      style: TextStyle(
+                        color: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.color
+                            ?.withOpacity(0.7),
+                        fontSize: 14,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -358,70 +373,65 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ⚠️ Empty & Error Widgets
+  // ⚠️ Empty & Error
   Widget _buildEmptyWidget() => Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Image.asset(
-          'assets/images/peek_no_news.png', // ubah sesuai nama file kamu
-          width: 120,
-          height: 120,
-          fit: BoxFit.contain,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset('assets/images/peek_no_news.png',
+                width: 120, height: 120),
+            const SizedBox(height: 16),
+            Text(
+              'No News available',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please try again later',
+              style: TextStyle(
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.color
+                      ?.withOpacity(0.7)),
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
-        const Text(
-          'No News available',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Please try again later',
-          style: TextStyle(color: Colors.grey),
-        ),
-      ],
-    ),
-  );
+      );
 
   Widget _buildErrorWidget() => Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.error_outline, size: 64, color: Colors.redAccent),
-        const SizedBox(height: 16),
-        const Text(
-          'Something went wrong',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Please check your internet connection',
-          style: TextStyle(color: Colors.grey),
-        ),
-        const SizedBox(height: 24),
-        ElevatedButton(
-          onPressed: Get.find<NewsController>().refreshNews,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.redAccent),
+            const SizedBox(height: 16),
+            Text(
+              'Something went wrong',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+              ),
             ),
-          ),
-          child: const Text('Retry'),
+            const SizedBox(height: 8),
+            Text(
+              'Please check your internet connection',
+              style: TextStyle(
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.color
+                      ?.withOpacity(0.7)),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+      );
 
-  // 📅 Filter bottom sheet
+  // 📅 Filter
   void _showFilterBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -442,19 +452,27 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Filter by Time',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).textTheme.bodyLarge?.color),
               ),
               const SizedBox(height: 12),
               ...filters.map(
                 (filter) => ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(filter, style: const TextStyle(fontSize: 16)),
+                  title: Text(
+                    filter,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.of(context).pop();
                     Get.find<NewsController>().filterByTime(filter);
-
                     Get.snackbar(
                       'Filter Applied',
                       'Showing news from $filter',

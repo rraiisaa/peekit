@@ -98,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen>
                       "Don't worry, we'll remember you!",
                       style: TextStyle(
                         fontSize: 16,
-                        color: AppColors.textPrimary.withOpacity(0.7),
+                        color: AppColors.textPrimary.withValues(alpha: 0.5),
                       ),
                     ),
                     const SizedBox(height: 40),
