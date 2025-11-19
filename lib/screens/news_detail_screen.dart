@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:peekit_app/main.dart';
 import 'package:peekit_app/models/news_articles.dart';
 import 'package:peekit_app/utils/app_colors.dart';
 import 'package:share_plus/share_plus.dart';
@@ -33,14 +34,19 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.externalApplication);
       } else {
-        Get.snackbar('Error', "Couldn't open the link",
-            snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar(
+          'Error',
+          "Couldn't open the link",
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ThemeProvider.of(context).isDarkMode;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
@@ -56,8 +62,11 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                   const Center(child: CircularProgressIndicator()),
               errorWidget: (context, url, error) => Container(
                 color: Colors.grey.shade300,
-                child: const Icon(Icons.image_not_supported,
-                    color: Colors.grey, size: 60),
+                child: const Icon(
+                  Icons.image_not_supported,
+                  color: Colors.grey,
+                  size: 60,
+                ),
               ),
             ),
           ),
@@ -106,24 +115,26 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
             ),
           ),
 
-          /// 📄 Article Card Section
+          /// 📄 Article Section
           DraggableScrollableSheet(
             initialChildSize: 0.58,
             minChildSize: 0.58,
-            maxChildSize: 0.95,
+            maxChildSize: 1,
             builder: (context, scrollController) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(24)),
                 ),
                 child: SingleChildScrollView(
                   controller: scrollController,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 🔹 Source & time
+                      /// 🔹 Source + Time
                       Row(
                         children: [
                           if (article.source?.name != null)
@@ -145,53 +156,66 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                             ),
                           const SizedBox(width: 8),
                           Text(
-                            timeago.format(DateTime.parse(
+                            timeago.format(
+                              DateTime.parse(
                                 article.publishedAt ??
-                                    DateTime.now().toString())),
-                            style: const TextStyle(
-                                color: Colors.grey, fontSize: 12),
+                                    DateTime.now().toString(),
+                              ),
+                            ),
+                            style: TextStyle(
+                              color: isDark ? Colors.grey.shade400 : Colors.grey,
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
 
-                      // 📰 Title
+                      const SizedBox(height: 12),
+
+                      /// 📰 Title
                       Text(
                         article.title ?? '',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                          color: isDark ? Colors.white : Colors.black,
                           height: 1.3,
                         ),
                       ),
+
                       const SizedBox(height: 16),
 
-                      // 📝 Description
+                      /// 📝 Description
                       if (article.description != null)
                         Text(
                           article.description!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
-                            color: Colors.black87,
+                            color: isDark
+                                ? Colors.white70
+                                : Colors.black.withOpacity(0.87),
                             height: 1.6,
                           ),
                         ),
+
                       const SizedBox(height: 16),
 
-                      // 📚 Content
+                      /// 📚 Content (Full, without clipping)
                       if (article.content != null)
                         Text(
                           article.content!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
-                            color: Colors.black87,
+                            color: isDark
+                                ? Colors.white70
+                                : Colors.black.withValues(alpha: 0.87),
                             height: 1.6,
                           ),
                         ),
-                      const SizedBox(height: 24),
 
-                      // 🔗 Button
+                      const SizedBox(height: 30),
+
+                      /// 🔗 BUTTON – Open in Browser
                       if (article.url != null)
                         SizedBox(
                           width: double.infinity,
@@ -206,13 +230,14 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                               ),
                             ),
                             child: const Text(
-                              "Read Full Article",
+                              "Open in Browser",
                               style:
                                   TextStyle(fontSize: 16, color: Colors.white),
                             ),
                           ),
                         ),
-                      const SizedBox(height: 12),
+
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -238,7 +263,11 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
           color: AppColors.primary.withValues(alpha: 0.5),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: Colors.white, size: 20),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: 20,
+        ),
       ),
     );
   }

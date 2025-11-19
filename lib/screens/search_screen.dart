@@ -30,9 +30,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future<void> _onSearch(String query) async {
     if (query.trim().isEmpty) return;
+
     final q = query.trim();
 
-    // simpan ke recent
     if (!_recentSearches.contains(q)) {
       setState(() {
         _recentSearches.insert(0, q);
@@ -40,9 +40,7 @@ class _SearchScreenState extends State<SearchScreen> {
       });
     }
 
-    setState(() {
-      _hasSearched = true;
-    });
+    setState(() => _hasSearched = true);
 
     _isSearching.value = true;
     await controller.searchNews(q);
@@ -51,8 +49,10 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
         child: SafeArea(
@@ -61,49 +61,65 @@ class _SearchScreenState extends State<SearchScreen> {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.black87),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
                   onPressed: () => Get.back(),
                 ),
                 Expanded(
                   child: Container(
                     height: 45,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
+                      color: isDark
+                          ? Colors.grey.shade900
+                          : Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12.withOpacity(0.05),
-                          blurRadius: 6,
-                          offset: const Offset(0, 3),
-                        ),
+                        if (!isDark)
+                          BoxShadow(
+                            color: Colors.black12.withOpacity(0.05),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
                       ],
                     ),
                     child: Row(
                       children: [
                         const SizedBox(width: 12),
-                        const Icon(Icons.search, color: Colors.grey),
+                        Icon(Icons.search,
+                            color: isDark ? Colors.grey[400] : Colors.grey),
                         const SizedBox(width: 8),
                         Expanded(
                           child: TextField(
                             controller: _searchController,
                             autofocus: true,
+                            style: TextStyle(
+                              color: isDark ? Colors.white : Colors.black87,
+                            ),
                             textInputAction: TextInputAction.search,
-                            onSubmitted: (value) => _onSearch(value),
-                            decoration: const InputDecoration(
+                            onSubmitted: _onSearch,
+                            decoration: InputDecoration(
                               hintText: 'Search news...',
-                              hintStyle: TextStyle(color: Colors.grey),
+                              hintStyle: TextStyle(
+                                color: isDark
+                                    ? Colors.grey[500]
+                                    : Colors.grey,
+                              ),
                               border: InputBorder.none,
                             ),
+                            onChanged: (_) => setState(() {}),
                           ),
                         ),
                         if (_searchController.text.isNotEmpty)
                           IconButton(
-                            icon: const Icon(Icons.clear, color: Colors.grey),
+                            icon: Icon(
+                              Icons.clear,
+                              color: isDark ? Colors.grey[400] : Colors.grey,
+                            ),
                             onPressed: () {
                               _searchController.clear();
-                              setState(() {
-                                _hasSearched = false;
-                              });
+                              setState(() => _hasSearched = false);
                             },
                           ),
                       ],
@@ -120,18 +136,23 @@ class _SearchScreenState extends State<SearchScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        // 🔹 Kalau belum search: tampilkan trending + recent
+        // ===== DEFAULT: TRENDING & RECENT =====
         if (!_hasSearched) {
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Trending Searches',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black,
+                  ),
                 ),
                 const SizedBox(height: 12),
+
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -143,35 +164,61 @@ class _SearchScreenState extends State<SearchScreen> {
                       },
                       child: Chip(
                         label: Text(term),
-                        backgroundColor: Colors.white,
+                        backgroundColor:
+                            isDark ? Colors.black : Colors.white,
+                        labelStyle: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(color: AppColors.primary, width: 1),
+                          side: BorderSide(
+                            color: AppColors.primary,
+                            width: 1,
+                          ),
                         ),
-                        labelStyle: TextStyle(color: AppColors.primary),
                       ),
                     );
                   }).toList(),
                 ),
+
                 const SizedBox(height: 24),
+
                 if (_recentSearches.isNotEmpty)
-                  const Text(
+                  Text(
                     'Recent Searches',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
                   ),
+
                 const SizedBox(height: 12),
+
                 Column(
                   children: _recentSearches.map((query) {
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.history, color: Colors.grey),
-                      title: Text(query),
+                      leading: Icon(
+                        Icons.history,
+                        color: isDark ? Colors.grey[400] : Colors.grey,
+                      ),
+                      title: Text(
+                        query,
+                        style: TextStyle(
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
                       onTap: () {
                         _searchController.text = query;
                         _onSearch(query);
                       },
                       trailing: IconButton(
-                        icon: const Icon(Icons.close, color: Colors.grey),
+                        icon: Icon(
+                          Icons.close,
+                          color: isDark ? Colors.grey[400] : Colors.grey,
+                        ),
                         onPressed: () {
                           setState(() => _recentSearches.remove(query));
                         },
@@ -184,7 +231,7 @@ class _SearchScreenState extends State<SearchScreen> {
           );
         }
 
-        // 🔹 Kalau udah search: tampilkan hasil
+        // ===== SEARCH RESULTS =====
         if (controller.articles.isNotEmpty) {
           return ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -193,17 +240,20 @@ class _SearchScreenState extends State<SearchScreen> {
               final article = controller.articles[index];
               return NewsCard(
                 article: article,
-                onTap: () => Get.toNamed(Routes.NEWS_DETAIL, arguments: article),
+                onTap: () =>
+                    Get.toNamed(Routes.NEWS_DETAIL, arguments: article),
               );
             },
           );
         }
 
-        // 🔹 Kalau gak ada hasil
-        return const Center(
+        return Center(
           child: Text(
             'No results found',
-            style: TextStyle(color: Colors.grey, fontSize: 16),
+            style: TextStyle(
+              color: isDark ? Colors.grey[400] : Colors.grey,
+              fontSize: 16,
+            ),
           ),
         );
       }),

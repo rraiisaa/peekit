@@ -2,59 +2,67 @@ import 'package:flutter/material.dart';
 import 'package:peekit_app/widgets/bottom_navbar.dart';
 import 'package:peekit_app/routes/app_pages.dart';
 import 'package:peekit_app/utils/app_colors.dart';
-import 'package:peekit_app/main.dart'; // akses ThemeProvider
+import 'package:peekit_app/main.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ThemeProvider.of(context).isDarkMode;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: isDark ? const Color(0xFF121212) : Colors.grey[100],
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           "Profile",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 🔹 User Info Card
+            /// 🔹 User Info
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
                 children: [
                   const CircleAvatar(
                     radius: 30,
-                    backgroundImage: AssetImage(
-                      "assets/images/profile.png",
-                    ), // ganti sesuai asset kamu
+                    backgroundImage: AssetImage("assets/images/profile.png"),
                   ),
                   const SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         "Raisa Amanda",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 18,
+                          color: isDark ? Colors.white : Colors.black,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         "raisaamanda@gmail.com",
-                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                        style: TextStyle(
+                          color: isDark ? Colors.grey[400] : Colors.grey,
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
@@ -64,18 +72,13 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            /// 🔸 Account Section
-            SectionTitle(title: "Account"),
+            /// Account
+            SectionTitle(title: "Account", isDark: isDark),
             SettingsCard(
+              isDark: isDark,
               items: [
-                const SettingsItem(
-                  icon: Icons.person_outline,
-                  title: "Manage Profile",
-                ),
-                const SettingsItem(
-                  icon: Icons.lock_outline,
-                  title: "Password & Security",
-                ),
+                const SettingsItem(icon: Icons.person_outline, title: "Manage Profile"),
+                const SettingsItem(icon: Icons.lock_outline, title: "Password & Security"),
                 const SettingsItem(
                   icon: Icons.language,
                   title: "Language",
@@ -86,48 +89,68 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            /// 🔹 Preferences Section
-            SectionTitle(title: "Preferences"),
+            /// Preferences
+            SectionTitle(title: "Preferences", isDark: isDark),
             SettingsCard(
+              isDark: isDark,
               items: [
                 const SettingsItem(icon: Icons.info_outline, title: "About Us"),
-                const SettingsItem(
-                  icon: Icons.brightness_6_outlined,
-                  title: "Theme", // -> akan otomatis jadi Switch
-                ),
+                const SettingsItem(icon: Icons.brightness_6_outlined, title: "Theme"),
                 const SettingsItem(icon: Icons.bookmark_outline, title: "Saved"),
               ],
             ),
 
             const SizedBox(height: 16),
 
-            /// 🧩 Support Section
-            SectionTitle(title: "Support"),
+            /// Support
+            SectionTitle(title: "Support", isDark: isDark),
             SettingsCard(
+              isDark: isDark,
               items: [
                 const SettingsItem(icon: Icons.help_outline, title: "Help Center"),
                 const SettingsItem(icon: Icons.call_outlined, title: "Contact Us"),
               ],
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
 
-            /// Delete Account Button
-            Center(
-              child: TextButton(
-                onPressed: () {
-                  // TODO: handle delete account
-                },
-                child: const Text(
-                  "Delete Account",
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
+            /// Delete Account
+           /// Delete Account (Card Version)
+Container(
+  decoration: BoxDecoration(
+    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+    borderRadius: BorderRadius.circular(16),
+    boxShadow: [
+      if (!isDark)
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 6,
+          offset: const Offset(0, 2),
+        ),
+    ],
+  ),
+  margin: const EdgeInsets.only(bottom: 24),
+  child: TextButton(
+    style: TextButton.styleFrom(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+    ),
+    onPressed: () {},
+    child: const Center(
+      child: Text(
+        "Delete Account",
+        style: TextStyle(
+          color: Colors.red,
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+        ),
+      ),
+    ),
+  ),
+),
+
           ],
         ),
       ),
@@ -136,17 +159,10 @@ class ProfileScreen extends StatelessWidget {
         currentIndex: 3,
         onTap: (index) {
           switch (index) {
-            case 0:
-              Navigator.pushNamed(context, Routes.HOME);
-              break;
-            case 1:
-              Navigator.pushNamed(context, Routes.NEWS_SCREEN);
-              break;
-            case 2:
-              Navigator.pushNamed(context, Routes.NOTIFICATION_SCREEN);
-              break;
-            case 3:
-              break;
+            case 0: Navigator.pushNamed(context, Routes.HOME); break;
+            case 1: Navigator.pushNamed(context, Routes.NEWS_SCREEN); break;
+            case 2: Navigator.pushNamed(context, Routes.NOTIFICATION_SCREEN); break;
+            case 3: break;
           }
         },
       ),
@@ -154,10 +170,10 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-/// 🔹 Reusable Widgets
 class SectionTitle extends StatelessWidget {
   final String title;
-  const SectionTitle({super.key, required this.title});
+  final bool isDark;
+  const SectionTitle({super.key, required this.title, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
@@ -165,8 +181,8 @@ class SectionTitle extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4),
       child: Text(
         title,
-        style: const TextStyle(
-          color: Colors.black54,
+        style: TextStyle(
+          color: isDark ? Colors.grey[400] : Colors.black54,
           fontWeight: FontWeight.w500,
         ),
       ),
@@ -176,69 +192,69 @@ class SectionTitle extends StatelessWidget {
 
 class SettingsCard extends StatelessWidget {
   final List<SettingsItem> items;
-  const SettingsCard({super.key, required this.items});
+  final bool isDark;
+  const SettingsCard({super.key, required this.items, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: items
-            .map(
-              (item) => Column(
-                children: [
-                  ListTile(
-                    leading: Icon(item.icon, color: Colors.black87),
-                    title: Text(
-                      item.title,
-                      style: const TextStyle(fontWeight: FontWeight.w500),
+            .map((item) => Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(item.icon,
+                          color: isDark ? Colors.white : Colors.black87),
+                      title: Text(
+                        item.title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                      trailing: _buildTrailing(context, item),
+                      onTap: item.onTap,
                     ),
-
-                    // <-- Jika item.title == "Theme", kita tampilkan Switch
-                    trailing: _buildTrailing(context, item),
-
-                    onTap: item.onTap,
-                  ),
-                  if (item != items.last)
-                    Divider(height: 1, color: Colors.grey.shade200),
-                ],
-              ),
-            )
+                    if (item != items.last)
+                      Divider(
+                        height: 1,
+                        color: isDark ? Colors.grey[800] : Colors.grey.shade200,
+                      ),
+                  ],
+                ))
             .toList(),
       ),
     );
   }
 
   Widget? _buildTrailing(BuildContext context, SettingsItem item) {
-    // khusus: Theme -> tampilkan Switch yang terhubung ke ThemeProvider
     if (item.title == "Theme") {
-      try {
-        final provider = ThemeProvider.of(context);
-        return ObxSwitch(
-          isDark: provider.isDarkMode,
-          onChanged: (val) => provider.toggleTheme(),
-        );
-      } catch (e) {
-        // jika ThemeProvider tidak tersedia, fallback ke teks
-        return const Text("Light", style: TextStyle(color: Colors.grey));
-      }
+      final provider = ThemeProvider.of(context);
+      return ObxSwitch(
+        isDark: provider.isDarkMode,
+        onChanged: (val) => provider.toggleTheme(),
+      );
     }
 
     if (item.trailingText != null) {
       return Text(
         item.trailingText!,
-        style: const TextStyle(color: Colors.grey),
+        style: TextStyle(color: isDark ? Colors.grey[300] : Colors.grey),
       );
     }
 
-    return const Icon(Icons.arrow_forward_ios, size: 16);
+    return Icon(
+      Icons.arrow_forward_ios,
+      size: 16,
+      color: isDark ? Colors.grey[300] : Colors.black54,
+    );
   }
 }
 
-/// wrapper kecil agar Switch bisa rebuild dengan mudah
 class ObxSwitch extends StatefulWidget {
   final bool isDark;
   final ValueChanged<bool> onChanged;
@@ -253,9 +269,10 @@ class _ObxSwitchState extends State<ObxSwitch> {
   Widget build(BuildContext context) {
     return Switch(
       value: widget.isDark,
+      activeColor: AppColors.primary,
       onChanged: (v) {
         widget.onChanged(v);
-        setState(() {}); // refresh UI lokal supaya switch langsung berubah
+        setState(() {});
       },
     );
   }

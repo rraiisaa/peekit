@@ -4,7 +4,6 @@ import 'package:peekit_app/controllers/news_controller.dart';
 import 'package:peekit_app/routes/app_pages.dart';
 import 'package:peekit_app/utils/app_colors.dart';
 import 'package:peekit_app/widgets/category_chip.dart';
-import 'package:peekit_app/widgets/news_card.dart';
 import 'package:peekit_app/widgets/loading_shimmer.dart';
 import 'package:peekit_app/widgets/bottom_navbar.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -19,17 +18,27 @@ class _NewsScreenState extends State<NewsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final Color bgColor = isDark
+        ? Color(0xFF121212)
+        : Color(0xfff9f9f9);
+    final Color cardColor = isDark ? Color(0xFF1E1E1E) : Colors.white;
+    final Color textPrimary = isDark ? Colors.white : Colors.black87;
+    final Color textSecondary = isDark ? Colors.white70 : Colors.black54;
+    final Color timeText = isDark ? Colors.white60 : Colors.grey;
+
     return Scaffold(
-      backgroundColor: const Color(0xfff9f9f9),
+      backgroundColor: bgColor,
       bottomNavigationBar: BottomNavBar(
-        currentIndex: 1, // 1 = News
+        currentIndex: 1,
         onTap: (index) {
           switch (index) {
             case 0:
               Navigator.pushNamed(context, Routes.HOME);
               break;
             case 1:
-              break; // udah di News
+              break;
             case 2:
               Navigator.pushNamed(context, Routes.NOTIFICATION_SCREEN);
               break;
@@ -39,45 +48,49 @@ class _NewsScreenState extends State<NewsScreen> {
           }
         },
       ),
+
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🔍 Search bar + filter
+            // 🔍 Search + Filter
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding:EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Search bar
                   Expanded(
                     flex: 7,
                     child: Container(
                       height: 45,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: isDark ?Color(0xFF1E1E1E) : Colors.white,
                         borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                        boxShadow: isDark
+                            ? []
+                            : [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 6,
+                                  offset: Offset(0, 2),
+                                ),
+                              ],
                       ),
                       child: InkWell(
                         onTap: () => Get.toNamed(Routes.SEARCH_SCREEN),
                         borderRadius: BorderRadius.circular(24),
                         child: Row(
                           children: [
-                            const SizedBox(width: 16),
-                            const Icon(Icons.search, color: Colors.grey),
-                            const SizedBox(width: 10),
-                            const Expanded(
+                            SizedBox(width: 16),
+                            Icon(
+                              Icons.search,
+                              color: isDark ? Colors.white70 : Colors.grey,
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
                               child: Text(
                                 'Search News',
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: isDark ? Colors.white54 : Colors.grey,
                                   fontSize: 16,
                                 ),
                               ),
@@ -88,25 +101,29 @@ class _NewsScreenState extends State<NewsScreen> {
                     ),
                   ),
 
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
 
-                  // Filter icon
                   Container(
                     height: 45,
                     width: 45,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isDark ? Color(0xFF1E1E1E) : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
+                      boxShadow: isDark
+                          ? []
+                          : [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 6,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.tune_rounded, color: Colors.grey),
+                      icon: Icon(
+                        Icons.tune_rounded,
+                        color: isDark ? Colors.white70 : Colors.grey,
+                      ),
                       onPressed: () => _showFilterBottomSheet(context),
                     ),
                   ),
@@ -114,12 +131,12 @@ class _NewsScreenState extends State<NewsScreen> {
               ),
             ),
 
-            // 📰 Category list
+            // 🔖 Category chip list
             SizedBox(
               height: 50,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 itemCount: controller.categories.length,
                 itemBuilder: (context, index) {
                   final category = controller.categories[index];
@@ -134,158 +151,147 @@ class _NewsScreenState extends State<NewsScreen> {
               ),
             ),
 
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
 
-            // 📰 News List
+            // 📰 News list
             Expanded(
               child: Obx(() {
                 if (controller.isLoading) return LoadingShimmer();
-                if (controller.error.isNotEmpty) return _buildErrorWidget();
-                if (controller.articles.isEmpty) return _buildEmptyWidget();
+                if (controller.error.isNotEmpty)
+                  return _buildErrorWidget(isDark);
+                if (controller.articles.isEmpty)
+                  return _buildEmptyWidget(isDark);
 
                 return RefreshIndicator(
                   onRefresh: controller.refreshNews,
                   child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(
+                    padding: EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
                     ),
                     itemCount: controller.articles.length,
                     itemBuilder: (context, index) {
                       final article = controller.articles[index];
+
                       return GestureDetector(
                         onTap: () =>
                             Get.toNamed(Routes.NEWS_DETAIL, arguments: article),
                         child: Container(
-                          margin: const EdgeInsets.only(bottom: 12),
+                          margin: EdgeInsets.only(bottom: 14),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: cardColor,
                             borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 6,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
                           ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // 🖼️ Gambar
-                              ClipRRect(
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(16),
-                                  bottomLeft: Radius.circular(16),
-                                ),
-                                child: Image.network(
-                                  article.urlToImage ?? '',
-                                  width: 110,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Container(
-                                        width: 110,
-                                        height: 100,
-                                        color: Colors.grey[200],
-                                        child: const Icon(
-                                          Icons.image_not_supported,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                ),
-                              ),
-
-                              // 📄 Teks
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    12,
-                                    8,
-                                    8,
-                                    8,
+                          child: SizedBox(
+                            height: 120, // <-- FIXED CARD HEIGHT
+                            child: Row(
+                              children: [
+                                // IMAGE
+                                ClipRRect(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(16),
+                                    bottomLeft: Radius.circular(16),
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        article.title ?? 'No Title',
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
+                                  child: SizedBox(
+                                    width: 120,
+                                    height: 120,
+                                    child: Image.network(
+                                      article.urlToImage ?? '',
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                color: Colors.grey[800],
+                                                child: Icon(
+                                                  Icons.image_not_supported,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                    ),
+                                  ),
+                                ),
+
+                                // TEXT AREA
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(
+                                      12,
+                                      10,
+                                      12,
+                                      10,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // TITLE
+                                        Text(
+                                          article.title ?? 'No Title',
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: textPrimary,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Text(
-                                        article.description ?? '',
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.black54,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            article.publishedAt != null
-                                                ? timeago.format(
-                                                    DateTime.parse(
-                                                      article.publishedAt!,
-                                                    ).toLocal(),
-                                                    locale: 'en',
-                                                  )
-                                                : '',
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              color: Colors.grey,
+
+                                        // DESCRIPTION
+                                        Expanded(
+                                          child: Text(
+                                            article.description ?? '',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: textSecondary,
+                                              height: 1.3,
                                             ),
                                           ),
+                                        ),
 
-                                          GestureDetector(
-                                            onTap: () {
-                                              // toggle saved
-                                              controller.toggleSave(article);
-                                              Get.snackbar(
-                                                'Saved',
-                                                'News added to your saved list',
-                                                snackPosition:
-                                                    SnackPosition.BOTTOM,
-                                                backgroundColor:
-                                                    AppColors.primary,
-                                                colorText: Colors.white,
-                                                margin: const EdgeInsets.all(
-                                                  12,
-                                                ),
-                                                borderRadius: 12,
-                                              );
-                                            },
-                                            child: Container(
-                                              padding: const EdgeInsets.all(6),
+                                        // TIME + BOOKMARK
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              article.publishedAt != null
+                                                  ? timeago.format(
+                                                      DateTime.parse(
+                                                        article.publishedAt!,
+                                                      ).toLocal(),
+                                                      locale: 'en',
+                                                    )
+                                                  : '',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: timeText,
+                                              ),
+                                            ),
+
+                                            Container(
+                                              padding: EdgeInsets.all(6),
                                               decoration: BoxDecoration(
                                                 color: AppColors.primary,
                                                 shape: BoxShape.circle,
                                               ),
-                                              child: const Icon(
+                                              child: Icon(
                                                 Icons.bookmark_outline,
                                                 color: Colors.white,
                                                 size: 18,
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -300,47 +306,59 @@ class _NewsScreenState extends State<NewsScreen> {
     );
   }
 
-  // ⚠️ Empty & Error Widgets
-  Widget _buildEmptyWidget() => const Center(
+  // EMPTY STATE
+  Widget _buildEmptyWidget(bool isDark) => Center(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.newspaper, size: 64, color: Colors.grey),
+        Icon(
+          Icons.newspaper,
+          size: 64,
+          color: isDark ? Colors.white30 : Colors.grey,
+        ),
         SizedBox(height: 16),
         Text(
           'No News available',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: isDark ? Colors.white : Colors.black87,
           ),
         ),
         SizedBox(height: 8),
-        Text('Please try again later', style: TextStyle(color: Colors.grey)),
+        Text(
+          'Please try again later',
+          style: TextStyle(color: isDark ? Colors.white54 : Colors.grey),
+        ),
       ],
     ),
   );
 
-  Widget _buildErrorWidget() => Center(
+  // ERROR STATE
+  Widget _buildErrorWidget(bool isDark) => Center(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.error_outline, size: 64, color: Colors.redAccent),
-        const SizedBox(height: 16),
-        const Text(
+        Icon(
+          Icons.error_outline,
+          size: 64,
+          color: isDark ? Colors.redAccent : Colors.redAccent,
+        ),
+        SizedBox(height: 16),
+        Text(
           'Something went wrong',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: isDark ? Colors.white : Colors.black87,
           ),
         ),
-        const SizedBox(height: 8),
-        const Text(
+        SizedBox(height: 8),
+        Text(
           'Please check your internet connection',
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(color: isDark ? Colors.white54 : Colors.grey),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: 24),
         ElevatedButton(
           onPressed: Get.find<NewsController>().refreshNews,
           style: ElevatedButton.styleFrom(
@@ -349,17 +367,20 @@ class _NewsScreenState extends State<NewsScreen> {
               borderRadius: BorderRadius.circular(20),
             ),
           ),
-          child: const Text('Retry'),
+          child: Text('Retry', style: TextStyle(color: Colors.white)),
         ),
       ],
     ),
   );
 
-  // 📅 Filter bottom sheet
+  // FILTER BOTTOM SHEET
   void _showFilterBottomSheet(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
+      backgroundColor: isDark ? Color(0xFF1E1E1E) : Colors.white,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
@@ -370,23 +391,33 @@ class _NewsScreenState extends State<NewsScreen> {
           '1 Month Ago',
           '3 Months Ago',
         ];
+
         return Padding(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Filter by Time',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               ...filters.map(
                 (filter) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(filter, style: const TextStyle(fontSize: 16)),
+                  title: Text(
+                    filter,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: isDark ? Colors.white70 : Colors.black,
+                    ),
+                  ),
                   onTap: () {
-                    Navigator.of(context).pop();
+                    Navigator.pop(context);
                     Get.find<NewsController>().filterByTime(filter);
 
                     Get.snackbar(
@@ -395,8 +426,6 @@ class _NewsScreenState extends State<NewsScreen> {
                       snackPosition: SnackPosition.BOTTOM,
                       backgroundColor: AppColors.primary,
                       colorText: Colors.white,
-                      margin: const EdgeInsets.all(12),
-                      borderRadius: 12,
                     );
                   },
                 ),

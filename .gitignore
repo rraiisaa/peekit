@@ -46,3 +46,7 @@ app.*.map.json
 
 # Environment variables
 .env
+
+# Ignore Firebase & Google API Keys
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist

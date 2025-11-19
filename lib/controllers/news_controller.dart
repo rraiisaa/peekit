@@ -153,7 +153,7 @@ class NewsController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: AppColors.primary,
           colorText: Colors.white,
-          margin: const EdgeInsets.all(12),
+          margin: EdgeInsets.all(12),
           borderRadius: 12,
         );
       }
@@ -164,7 +164,7 @@ class NewsController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
-        margin: const EdgeInsets.all(12),
+        margin: EdgeInsets.all(12),
         borderRadius: 12,
       );
     }

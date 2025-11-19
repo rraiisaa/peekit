@@ -16,7 +16,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff9f9f9),
+      backgroundColor: Color(0xfff9f9f9),
       appBar: AppBar(
         title: Obx(() {
           final selectedCount = controller.notifications
@@ -31,9 +31,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
         elevation: 0,
         leading: Obx(() {
           final hasSelected = controller.notifications.any((n) => n.isSelected);
-          if (!hasSelected) return const SizedBox();
+          if (!hasSelected) return SizedBox();
           return IconButton(
-            icon: const Icon(Icons.close, color: Colors.black),
+            icon: Icon(Icons.close, color: Colors.black),
             onPressed: () => controller.clearSelection(),
           );
         }),
@@ -44,7 +44,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             );
             if (!hasSelected) return const SizedBox();
             return IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              icon: Icon(Icons.delete_outline, color: Colors.red),
               onPressed: () => _showDeleteConfirmDialog(context),
             );
           }),
@@ -71,11 +71,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
       body: Obx(() {
         if (controller.notifications.isEmpty) {
-          return const Center(child: Text('No notifications yet'));
+          return Center(child: Text('No notifications yet'));
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12),
           itemCount: controller.notifications.length,
           itemBuilder: (context, index) {
             final notif = controller.notifications[index];
@@ -98,9 +98,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 }
               },
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                margin: const EdgeInsets.symmetric(vertical: 6),
-                padding: const EdgeInsets.all(16),
+                duration: Duration(milliseconds: 200),
+                margin: EdgeInsets.symmetric(vertical: 6),
+                padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: notif.isSelected
                       ? Colors.blue[700]
@@ -122,7 +122,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           ? Colors.grey
                           : AppColors.primary,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +136,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             notif.message,
                             style: TextStyle(
@@ -146,7 +146,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               fontSize: 13,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          SizedBox(height: 6),
                           Text(
                             "${notif.time.hour}:${notif.time.minute.toString().padLeft(2, '0')}",
                             style: TextStyle(
@@ -177,7 +177,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
       builder: (context) {
         return Padding(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -185,7 +185,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 "Are you sure want to delete selected notifications?",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -215,7 +215,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         borderRadius: 12,
                       );
                     },
-                    child: const Text("Yes"),
+                    child: Text("Yes"),
                   ),
                 ],
               ),
